@@ -9,9 +9,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-# ---------------------------------------------------------
-#  .env dosyasını yükle (GOOGLE_API_KEY buradan gelecek)
-# ---------------------------------------------------------
+
 load_dotenv()
 
 # Google Gemini client
@@ -39,12 +37,8 @@ class CreativeResponse(BaseModel):
     headline: str
     primary_text: str
     cta: str
-    generated_image_url: str  # şimdilik placeholder URL
+    generated_image_url: str  
 
-
-# ---------------------------------------------------------
-#  Ana endpoint: /generate-creative  (mock görsel + gerçek metin)
-# ---------------------------------------------------------
 @app.post("/generate-creative", response_model=CreativeResponse)
 async def generate_creative(request: CreativeRequest):
     """
@@ -52,7 +46,6 @@ async def generate_creative(request: CreativeRequest):
     Görsel indirme / image model çağrısı yok (quota yememek için).
     """
     try:
-        # --- GÖREV A: Metin Üretimi (Copywriting) ---
         copy_prompt = f"""
         Sen uzman bir reklam yazarısın. 
         Marka: {request.brand_name}
@@ -87,8 +80,6 @@ async def generate_creative(request: CreativeRequest):
                 detail=f"Metin JSON parse hatası: {e}",
             )
 
-        # --- GÖREV B: Görsel (GEÇİCİ MOCK) ---
-        # Şimdilik sabit bir placeholder görsel kullanıyoruz.
         placeholder_image_url = "https://picsum.photos/seed/refmorph-demo/800/800"
 
         return CreativeResponse(
@@ -99,8 +90,6 @@ async def generate_creative(request: CreativeRequest):
         )
 
     except HTTPException:
-        # Zaten fırlattığımız HTTPException'ı olduğu gibi yukarı taşı
         raise
     except Exception as e:
-        # Diğer tüm hatalar
         raise HTTPException(status_code=500, detail=str(e))
